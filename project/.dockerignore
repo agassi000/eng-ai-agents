@@ -1,0 +1,10 @@
+.git/
+rustfs-data/
+rustfs-logs/
+local-store/
+__pycache__/
+*.pyc
+*.ducklake
+*.ducklake.wal
+metadata.ducklake*
+.env

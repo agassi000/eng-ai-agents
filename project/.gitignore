@@ -1,0 +1,23 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# RustFS object store + logs (regenerable; never commit data files)
+rustfs-data/
+rustfs-logs/
+
+# Local staging area (keep the directory, ignore its contents)
+local-store/*
+!local-store/.gitkeep
+local-store/hf-cache/
+
+# DuckLake catalog (regenerable by rebuild.sh)
+metadata.ducklake
+metadata.ducklake.wal
+metadata.ducklake.files/
+*.ducklake
+*.ducklake.wal

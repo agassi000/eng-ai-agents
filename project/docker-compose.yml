@@ -1,0 +1,43 @@
+services:
+  rustfs:
+    image: rustfs/rustfs:latest
+    container_name: lakehouse-rustfs
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # web console
+    environment:
+      # Dev credentials. These MUST match the S3 secret in sql/00_attach.sql.
+      # Change them for anything real. The exact env-var names can vary by image
+      # tag; if auth fails, check the RustFS docs for your tag (see README).
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-rustfsadmin}
+    volumes:
+      - ./rustfs-data:/data   # host dir must be owned by UID 10001 (RustFS runs non-root)
+      - ./rustfs-logs:/logs
+    restart: unless-stopped
+
+  lab:
+    build: .                  # baked deps (see Dockerfile + requirements.txt) for reproducibility
+    container_name: lakehouse-lab
+    working_dir: /workspace
+    depends_on: [rustfs]
+    volumes:
+      - ./:/workspace
+      - ./local-store:/data/local   # the "local storage" half of objective 4
+      - ./local-store/hf-cache:/data/local/hf-cache   # HF cache on /home (not Docker's small root FS)
+    environment:
+      HF_HOME: /data/local/hf-cache
+      HF_DATASETS_CACHE: /data/local/hf-cache/datasets
+      HF_HUB_CACHE: /data/local/hf-cache/hub
+      AWS_ACCESS_KEY_ID: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+      AWS_SECRET_ACCESS_KEY: ${RUSTFS_SECRET_KEY:-rustfsadmin}
+      S3_ENDPOINT: "http://rustfs:9000"   # in-container hostname; use localhost:9000 from the host
+      S3_BUCKET: "lakehouse"
+      HF_TOKEN: ${HF_TOKEN:-}
+      COCO_DATASET: ${COCO_DATASET:-detection-datasets/coco}
+      COCO_SPLIT: ${COCO_SPLIT:-val}
+      COCO_NUM_IMAGES: ${COCO_NUM_IMAGES:-200}
+      VISDRONE_DIR: ${VISDRONE_DIR:-/data/local/visdrone}
+      VISDRONE_FRAGMENT_FRAMES: ${VISDRONE_FRAGMENT_FRAMES:-30}
+      GOLD_HF_REPO: ${GOLD_HF_REPO:-}
+    command: sleep infinity   # exec in to run the pipeline; see README / rebuild.sh

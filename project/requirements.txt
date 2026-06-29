@@ -1,0 +1,13 @@
+# DuckLake support requires DuckDB >= 1.3.0 (the `ducklake` extension).
+duckdb>=1.3.0
+# Hugging Face ingestion + push-to-hub.
+datasets>=3.0.0
+huggingface_hub>=0.25.0
+# S3 access to RustFS (bucket admin + raw object listing checkpoints).
+boto3>=1.35.0
+# Parquet/Arrow interchange between Python and DuckDB.
+pyarrow>=17.0.0
+# Decode/encode COCO image bytes.
+pillow>=10.0.0
+# DuckDB/DuckLake snapshot timestamps (ducklake_snapshots, AT TIMESTAMP).
+pytz>=2024.1
